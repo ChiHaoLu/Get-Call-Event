@@ -21,8 +21,7 @@ $ go run *.go
 | ETH RPC_CALL | Usage | Result | Reason |
 |---|---|---|---|
 |`eth_call`| For read-only functions, it returns what the read-only function returns. For functions that change the state of the contract, it executes that transaction locally and returns any data returned by the function. ([ref.](https://docs.alchemy.com/reference/eth-call))| ❌ | The issue is that eth_call is specced to return only a binary blob and we can't add the logs in there without breaking the API. ([ref.](https://github.com/ethereum/go-ethereum/issues/20694#issuecomment-677457387)) |
-|`debug_traceCall`| Lets you run an `eth_call` on top of a given block. The block can be specified either by hash or by number. It takes the same input object as a `eth_call`.
-It returns the same output as debug_traceTransaction. A tracer can be specified as a third argument, similar to `debug_traceTransaction`.([ref.](https://github.com/ethereum/go-ethereum/pull/21338)) | ⚠️||
+|`debug_traceCall`| Lets you run an `eth_call` on top of a given block. The block can be specified either by hash or by number. It takes the same input object as a `eth_call`. ([ref.](https://github.com/ethereum/go-ethereum/pull/21338)) | ⚠️||
 
 ## Reference
 
