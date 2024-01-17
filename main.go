@@ -5,29 +5,40 @@ import (
     "fmt"
     "log"
 
-    "github.com/ethereum/go-ethereum/common"
+    "github.com/joho/godotenv"
     "github.com/ethereum/go-ethereum/rpc"
 )
 
 func main() {
+    err := godotenv.Load()
+    if err != nil {
+        log.Fatalf("err loading: %v", err)
+    }
+
+	// Setup client
     client, err := rpc.DialHTTP(os.Getenv("RPC_URL"))
     if err != nil {
         log.Fatal(err)
     }
     defer client.Close()
 
+	// Get signed trasanction
+    data := ConstructTxData()
+	signedTx := GetSignedTx(data)
+    fmt.Println(signedTx.Hash().Hex())
+
+	// Try eth_call
     type request struct {
         To   string `json:"to"`
         Data string `json:"data"`
     }
-
     var result string
 
-    req := request{"0x1A37E0A92f6F2E06088607B5D87DfeeB95A4BEC2", "0x8da5cb5b"}
+    req := request{os.Getenv("CONTRACT_ADDR"), "0x8da5cb5b"}
     if err := client.Call(&result, "eth_call", req, "latest"); err != nil {
         log.Fatal(err)
     }
+    fmt.Printf("%s\n", result)
 
-    owner := common.HexToAddress(result)
-    fmt.Printf("%s\n", owner.Hex())
+	// TODO: Try debug_xxx
 }
