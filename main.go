@@ -5,12 +5,13 @@ import (
 	"log"
 	"os"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/joho/godotenv"
 )
 
 type request struct {
-	From *string `json:"from"`
+	From common.Address `json:"from"`
 	To   string  `json:"to"`
 	Data string  `json:"data"`
 }
@@ -29,7 +30,7 @@ type traceResult struct {
 }
 
 /*
-curl https://eth-sepolia.g.alchemy.com/v2/QmC1LbvkXMzQTCqaLT6j0wXp3L_rNJjO \
+curl https://eth-sepolia.g.alchemy.com/v2/ \
 -X POST \
 -H "Content-Type: application/json" \
 --data '{"method":"debug_traceCall","params":[{"from":null,"to":"0x1A37E0A92f6F2E06088607B5D87DfeeB95A4BEC2","data":"0xc5fde5e5"}, "latest", {"tracer": "callTracer"}],"id":1,"jsonrpc":"2.0"}'
@@ -51,13 +52,11 @@ func main() {
 	// Get signed trasanction
 	fxSig, data := ConstructTxData()
 	from, signedTx := GetSignedTx(data)
-	fmt.Println(from)
-	fmt.Println(fxSig)
 	fmt.Println(signedTx.Hash().Hex())
 
 	// Try RPC CALL
 	var result traceResult
-	req := request{nil, os.Getenv("CONTRACT_ADDR"), fxSig}
+	req := request{from, os.Getenv("CONTRACT_ADDR"), fxSig}
 	config := traceConfig{"callTracer"}
 	if err := client.Call(&result, "debug_traceCall", req, "latest", config); err != nil {
 		log.Fatal(err)

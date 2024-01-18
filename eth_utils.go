@@ -14,7 +14,7 @@ import (
 )
 
 func ConstructTxData() (string, []byte) {
-	methodID := crypto.Keccak256([]byte("EmitWhenErrorOccurred()"))[:4]
+	methodID := crypto.Keccak256([]byte("EmitWithWrite()"))[:4]
 	// fmt.Println(hexutil.Encode(methodID)) // 0x9d460f0c
 
 	var data []byte
