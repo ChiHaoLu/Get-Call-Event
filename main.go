@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/ChiHaoLu/Get-Call-Event/tracer"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/joho/godotenv"
@@ -12,8 +13,8 @@ import (
 
 type request struct {
 	From common.Address `json:"from"`
-	To   string  `json:"to"`
-	Data string  `json:"data"`
+	To   string         `json:"to"`
+	Data string         `json:"data"`
 }
 type traceConfig struct {
 	Tracer string `json:"tracer"`
@@ -50,14 +51,22 @@ func main() {
 	defer client.Close()
 
 	// Get signed trasanction
-	fxSig, data := ConstructTxData()
+	fnSig, data := ConstructTxData()
 	from, signedTx := GetSignedTx(data)
 	fmt.Println(signedTx.Hash().Hex())
 
 	// Try RPC CALL
 	var result traceResult
-	req := request{from, os.Getenv("CONTRACT_ADDR"), fxSig}
-	config := traceConfig{"callTracer"}
+	req := request{
+		From: from,
+		To:   os.Getenv("CONTRACT_ADDR"),
+		Data: fnSig,
+	}
+	// config := traceConfig{"callTracer"}
+	config := traceConfig{
+		Tracer: tracer.Loaded.EventTracer,
+	}
+    fmt.Println(config.Tracer)
 	if err := client.Call(&result, "debug_traceCall", req, "latest", config); err != nil {
 		log.Fatal(err)
 	}
