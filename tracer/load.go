@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-//go:embed *BundlerCollectorTracer.js
-//go:embed *BundlerExecutionTracer.js
 //go:embed *EventTracer.js
 var files embed.FS
 var (
@@ -38,61 +36,9 @@ type Tracers struct {
 	EventTracer string
 }
 
-// NewBundlerTracers reads the *Tracer.js files and returns a collection of strings that can be passed to a
-// debug RPC method as a custom tracer.
 func NewTracers() (*Tracers, error) {
-	var bct string
-	err := fs.WalkDir(
-		files,
-		"BundlerCollectorTracer.js",
-		func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			if d.IsDir() {
-				return nil
-			}
-
-			b, err := fs.ReadFile(files, path)
-			if err != nil {
-				return err
-			}
-
-			bct = parse(string(b))
-			return nil
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	var bet string
-	err = fs.WalkDir(files, "BundlerExecutionTracer.js", 
-		func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			if d.IsDir() {
-				return nil
-			}
-
-			b, err := fs.ReadFile(files, path)
-			if err != nil {
-				return err
-			}
-
-			bet = parse(string(b))
-			return nil
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
 	var et string
-	err = fs.WalkDir(
+	err := fs.WalkDir(
 		files,
 		"EventTracer.js",
 		func(path string, d fs.DirEntry, err error) error {
@@ -118,8 +64,6 @@ func NewTracers() (*Tracers, error) {
 	}
 
 	return &Tracers{
-		BundlerCollectorTracer: bct,
-		BundlerExecutionTracer: bet,
 		EventTracer: et,
 	}, nil
 }
