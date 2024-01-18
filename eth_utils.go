@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math/big"
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
-    "github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -31,6 +32,16 @@ func GetSignedTx(data []byte) (common.Address, *types.Transaction) {
 	}
 	defer client.Close()
 
+	contractAddress := common.HexToAddress(os.Getenv("CONTRACT_ADDR"))
+
+	bytecode, err := client.CodeAt(context.Background(), contractAddress, nil) // nil is latest block
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	isContract := len(bytecode) > 0
+	fmt.Printf("is contract: %v\n", isContract) // is contract: true
+
 	// Setup ECDSA signing
 	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
 	if err != nil {
@@ -50,7 +61,7 @@ func GetSignedTx(data []byte) (common.Address, *types.Transaction) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tx := types.NewTransaction(nonce, common.HexToAddress(os.Getenv("CONTRACT_ADDR")), value, gasLimit, gasPrice, data)
+	tx := types.NewTransaction(nonce, contractAddress, value, gasLimit, gasPrice, data)
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
 		log.Fatal(err)
