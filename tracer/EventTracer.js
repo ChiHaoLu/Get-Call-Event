@@ -10,7 +10,7 @@ var tracer = {
                 data: log.memory.slice(parseInt(log.stack.peek(0)), parseInt(log.stack.peek(0)) + parseInt(log.stack.peek(1))),
             };
             for (var i = 0; i < topicCount; i++)
-                res['topic' + i.toString()] = log.stack.peek(i + 2);
+                res[`topic` + i.toString()] = log.stack.peek(i + 2);
             this.data.push(res);
         }
     },
